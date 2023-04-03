@@ -9,6 +9,7 @@ function App() {
   const [list, setList] = useState([0]);
   const [width, setWidth] = useState(100);
   const [buildingTree, setBuildingTree] = useState(1);
+  const [lines, setLines] = useState([]);
 
   useEffect(() => {
     updateTree();
@@ -42,6 +43,7 @@ function App() {
 
   const addNode = () => {
     setList((curr) => [...curr, 0]);
+    getNodeCoords();
   };
 
   const handleNodeChange = (e, index) => {
@@ -54,6 +56,16 @@ function App() {
     setBuildingTree((curr) => !curr);
   };
 
+  const getNodeCoords = () => {
+    const nodes = document.querySelectorAll('.node');
+    let tempLines = [];
+    for (let i = 0; i < nodes.length; i++) {
+      const rect = nodes[i].getBoundingClientRect();
+      tempLines.push([rect.top, rect.left]);
+    }
+    setLines([...tempLines]);
+  };
+
   return buildingTree == 1 ? (
     <main className="flex">
       <List
@@ -63,13 +75,13 @@ function App() {
         submitTree={submitTree}
       />
       <Grid grid={grid} width={width} />
-      <Lines />
+      <Lines lines={lines} />
     </main>
   ) : (
     <main className="flex flex-col h-screen p-8">
       <Grid grid={grid} width={width} />
       <Controls />
-      <Lines grid={grid} />
+      <Lines lines={lines} />
     </main>
   );
 }

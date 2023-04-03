@@ -1,6 +1,7 @@
 import React from 'react';
 
-const Lines = ({ grid }) => {
+const Lines = ({ lines }) => {
+  console.log(lines);
   return <div>Lines</div>;
 };
 
