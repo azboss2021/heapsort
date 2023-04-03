@@ -1,41 +1,75 @@
 import { useEffect, useState } from 'react';
+import Grid from './components/Grid';
+import List from './components/List';
+import Controls from './components/Controls';
+import Lines from './components/Lines';
 
 function App() {
-  const [grid, setGrid] = useState([]);
-  const [list, setList] = useState([]);
+  const [grid, setGrid] = useState([[0]]);
+  const [list, setList] = useState([0]);
+  const [width, setWidth] = useState(100);
+  const [buildingTree, setBuildingTree] = useState(1);
 
   useEffect(() => {
-    setGrid([[0]]);
-  }, []);
+    updateTree();
+  }, [list]);
 
-  return (
+  const updateTree = () => {
+    let tempGrid = new Array(
+      Math.floor(Math.log(list.length) / Math.log(2)) + 1
+    );
+    for (let i = 0; i < tempGrid.length; i++) {
+      tempGrid[i] = new Array(2 ** i);
+    }
+
+    if (100 / tempGrid[tempGrid.length - 1].length > 10) setWidth(10);
+    else setWidth(100 / tempGrid[tempGrid.length - 1].length);
+
+    let i = 0;
+    while (i < list.length) {
+      const level = Math.floor(Math.log(i + 1) / Math.log(2));
+      const valuesOnLevel = 2 ** level;
+      for (let j = 0; j < valuesOnLevel; j++) {
+        if (i >= list.length) {
+          tempGrid[level][j] = null;
+        }
+        tempGrid[level][j] = list[i];
+        i++;
+      }
+    }
+    setGrid(tempGrid.slice().slice());
+  };
+
+  const addNode = () => {
+    setList((curr) => [...curr, 0]);
+  };
+
+  const handleNodeChange = (e, index) => {
+    let tempList = list.slice();
+    tempList[index] = e.target.value;
+    setList([...tempList]);
+  };
+
+  const submitTree = () => {
+    setBuildingTree((curr) => !curr);
+  };
+
+  return buildingTree == 1 ? (
     <main className="flex">
-      <section className="h-screen p-2 w-64 overflow-y-scroll">
-        <label htmlFor="insert-node">Node {1}</label>
-        <input
-          id="insert-node border-2"
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          placeholder="Node Value"
-        ></input>
-        <button
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          type="button"
-        >
-          Insert Node
-        </button>
-      </section>
-      <section className="">
-        {grid.map((row, rowIndex) => (
-          <div key={rowIndex}>
-            {row.map((node, nodeIndex) => (
-              <div
-                key={nodeIndex}
-                className="w-20 h-20 bg-blue-500 border-2 rounded-full"
-              ></div>
-            ))}
-          </div>
-        ))}
-      </section>
+      <List
+        list={list}
+        addNode={addNode}
+        handleNodeChange={handleNodeChange}
+        submitTree={submitTree}
+      />
+      <Grid grid={grid} width={width} />
+      <Lines />
+    </main>
+  ) : (
+    <main className="flex flex-col h-screen p-8">
+      <Grid grid={grid} width={width} />
+      <Controls />
+      <Lines grid={grid} />
     </main>
   );
 }
